@@ -1,7 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
 
-app = FastAPI(title="Relaxee API", description="API for Relaxee relaxation app", version="0.1.0")
+from .routers import products, categories, users, cart, orders, auth_router
+from .init_db import init_db
+
+app = FastAPI(title="Relaxee API", description="API for Relaxee e-commerce app", version="0.1.0")
 
 # Configure CORS
 app.add_middleware(
@@ -12,6 +16,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include routers
+app.include_router(auth_router.router)
+app.include_router(users.router)
+app.include_router(products.router)
+app.include_router(categories.router)
+app.include_router(cart.router)
+app.include_router(orders.router)
+
 @app.get("/")
 async def root():
     return {"message": "Welcome to Relaxee API"}
@@ -20,16 +32,10 @@ async def root():
 async def health_check():
     return {"status": "healthy"}
 
-@app.get("/api/meditation-sessions")
-async def get_meditation_sessions():
-    # Mock data - would be replaced with database queries
-    return [
-        {"id": 1, "title": "Morning Calm", "duration": 10, "category": "Mindfulness"},
-        {"id": 2, "title": "Stress Relief", "duration": 15, "category": "Anxiety"},
-        {"id": 3, "title": "Deep Sleep", "duration": 20, "category": "Sleep"},
-        {"id": 4, "title": "Focus Enhancement", "duration": 5, "category": "Productivity"},
-    ]
+# Initialize database on startup
+@app.on_event("startup")
+async def startup_event():
+    init_db()
 
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
