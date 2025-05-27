@@ -1,0 +1,1 @@
+            db.commit()  # Commit after adding categories so they are available for product creation
