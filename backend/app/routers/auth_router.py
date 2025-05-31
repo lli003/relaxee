@@ -55,3 +55,19 @@ async def register_user(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_user)
     return db_user
+
+@router.post("/login", response_model=Token)
+async def login(user_data: dict, db: Session = Depends(get_db)):
+    """Login endpoint for the frontend."""
+    user = authenticate_user(db, user_data.get("email"), user_data.get("password"))
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.email, "is_admin": user.is_admin}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}

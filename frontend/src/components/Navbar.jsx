@@ -93,12 +93,16 @@ const Navbar = () => {
                 display={{ base: 'none', md: 'flex' }}
               />
 
-              <IconButton
-                aria-label="User account"
-                icon={<FiUser />}
-                variant="ghost"
-                display={{ base: 'none', md: 'flex' }}
-              />
+              <Box position="relative">
+                <IconButton
+                  aria-label="User account"
+                  icon={<FiUser />}
+                  variant="ghost"
+                  display={{ base: 'none', md: 'flex' }}
+                  as={RouterLink}
+                  to="/login"
+                />
+              </Box>
 
               <Box position="relative">
                 <IconButton
